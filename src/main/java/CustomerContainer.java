@@ -9,4 +9,8 @@ class CustomerContainer {
     static void add(Customer customer) {
         customers.add(customer);
     }
+    
+    static Customer first() {
+        return customers.peek();
+    }
 }
