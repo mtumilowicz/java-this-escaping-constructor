@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/mtumilowicz/java-this-escaping-constructor.svg?token=PwyvjePQ7aiAX51hSYLE&branch=master)](https://travis-ci.com/mtumilowicz/java-this-escaping-constructor)
+
 # java-this-escaping-constructor
 Simple example of this reference escaping during construction.
 
