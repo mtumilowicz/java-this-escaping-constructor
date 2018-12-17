@@ -5,7 +5,8 @@ Simple example of this reference escaping during construction.
 
 _Reference_: https://stackoverflow.com/questions/1588420/how-does-this-escape-the-constructor-in-java  
 _Reference_: https://stackoverflow.com/questions/14790478/final-vs-volatile-guaranntee-w-rt-to-safe-publication-of-objects  
-_Reference_: https://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601
+_Reference_: https://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601  
+_Reference_: https://www.ibm.com/developerworks/library/j-jtp0618/index.html
 
 # preface
 An object is immutable if:
@@ -24,6 +25,7 @@ object,
 * storing a reference to it into a field that is properly guarded by a lock.
 
 # project description
+## explicit escape
 We provide simple and real-life example of `this` escaping during 
 construction. **It is definitely not a proper way of programming!**
 
@@ -58,3 +60,66 @@ many possible flows):
 1. **thread B**: local cache customer1,
 1. **thread A**: name of customer1 is initialized,
 1. customer1 is fully created and **thread B** has incoherent version.
+
+### remark
+Please note that we could write:
+```
+class Customer {
+    String name;
+
+    public Customer(String name) {
+        this.name = name;
+        CustomerContainer.add(this);
+    }
+}
+```
+adding to collection is the last statement in constructor - 
+but it is also extremely dangerous - suppose inheritance:
+```
+class VIPCustomer extends Customer {
+    // fields
+
+    public VIPCustomer(String name) {
+        super(name);
+        // fields init
+
+    }
+}
+```
+Java language specification requires that a call to 
+`super()` be the first statement in a subclass constructor, 
+our not-yet-constructed `VIPCustomer` is already registered 
+before we can finish the initialization of the 
+subclass fields.
+
+## implicit
+It is possible to create the escaped reference problem 
+without using the `this` reference at all. Non-static inner 
+classes maintain an implicit copy of the `this` reference of 
+their parent object, so creating an anonymous inner class 
+instance and passing it to an object visible from outside 
+the current thread has all the same risks as exposing the 
+`this` reference itself.
+
+```
+class EventListener2 {
+    EventListener2(EventSource eventSource) {
+
+        eventSource.registerListener(
+                new EventListener() {
+                    public void onEvent(Event e) {
+                        eventReceived(e); // access to eventListener2.eventReceived 
+                    }
+                });
+    }
+
+    void eventReceived(Event e) {
+    }
+}
+
+class EventSource {
+    void registerListener(EventListener listener) {
+
+    }
+}
+```
