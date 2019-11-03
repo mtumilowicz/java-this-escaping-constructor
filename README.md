@@ -94,8 +94,13 @@ before we can finish the initialization of the
 subclass fields.
 
 ## implicit
-It is possible to create the escaped reference problem 
+* It is possible to create the escaped reference problem 
 without using the `this` reference at all.
+* Note that non-static inner classes maintain an implicit copy of the `this` reference of 
+  their parent object, so creating an anonymous inner class 
+  instance and passing it to an object visible from outside 
+  the current thread has all the same risks as exposing the 
+  `this` reference itself.
 ```
 class ImplicitEscape {
     volatile static IntSupplier supplier;
@@ -112,8 +117,3 @@ class ImplicitEscape {
     }
 }
 ```
-* Note that non-static inner classes maintain an implicit copy of the `this` reference of 
-  their parent object, so creating an anonymous inner class 
-  instance and passing it to an object visible from outside 
-  the current thread has all the same risks as exposing the 
-  `this` reference itself.
